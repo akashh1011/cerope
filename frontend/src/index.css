@@ -2,8 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
-  @apply bg-cerope-bg text-gray-900;
+  @apply bg-[#f3f5f7] text-gray-900;
+  /* yaha overflow-hidden MAT rakho, normal scroll rehne do */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
     sans-serif;
 }

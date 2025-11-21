@@ -1,10 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import React from "react"; // React library import
+import ReactDOM from "react-dom/client"; // Browser me render karne ke liye
+import { BrowserRouter } from "react-router-dom"; // Routing support
+import App from "./App.jsx"; // Main App component
+import "./index.css"; // Tailwind + global CSS
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+ReactDOM.createRoot(document.getElementById("root")).render(
+  // React StrictMode extra check karta hai dev time
+  <React.StrictMode>
+    {/* BrowserRouter se `<Route>` etc kaam karte hain */}
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);
