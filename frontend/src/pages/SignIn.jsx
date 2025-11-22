@@ -1,22 +1,119 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import PageContainer from "../components/Layout/PageContainer.jsx";
 import AuthCard from "../components/auth/AuthCard.jsx";
 import AuthSideImage from "../components/auth/AuthSideImage.jsx";
-
-import signinImage from "../assets/signin.png"
+import signinImage from "../assets/signin.png";
+import { loginUserApi, googleLoginApi } from "../services/authApi.js";
 
 const SignIn = () => {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // ✅ yaha Google button render hoga
+  const googleButtonRef = useRef(null);
+
+  // -----------------------------
+  // Normal Email/Password Login
+  // -----------------------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const data = await loginUserApi({ email, password });
+
+      const { accessToken, refreshToken, user } = data;
+
+      if (remember) {
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+      } else {
+        sessionStorage.setItem("accessToken", accessToken);
+        sessionStorage.setItem("refreshToken", refreshToken);
+      }
+
+      localStorage.setItem("user", JSON.stringify(user));
+
+      navigate("/profile");
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // -----------------------------
+  // Google Sign-in (GSI Button)
+  // -----------------------------
+  useEffect(() => {
+    // agar script load nahi hua to kuch mat karo
+    if (!window.google || !window.google.accounts || !googleButtonRef.current) {
+      return;
+    }
+
+    // initialize with callback
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: async (response) => {
+        try {
+          // yaha se loading start – backend call se pehle
+          setGoogleLoading(true);
+
+          const credential = response.credential; // id_token
+          const data = await googleLoginApi({ idToken: credential });
+
+          const { accessToken, refreshToken, user } = data;
+
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("user", JSON.stringify(user));
+
+          navigate("/profile");
+        } catch (err) {
+          console.error(err);
+          setError(err.message || "Google Sign-In failed");
+        } finally {
+          setGoogleLoading(false);
+        }
+      },
+    });
+
+    window.google.accounts.id.renderButton(googleButtonRef.current, {
+      type: "standard",
+      theme: "outline",
+      text: "continue_with",
+      shape: "pill",
+      size: "large",
+      width: "100",
+    });
+  });
+
   return (
     <PageContainer>
-      <section className="max-w-5xl mx-auto mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <section className="grid max-w-5xl grid-cols-1 gap-6 mx-auto mt-6 md:grid-cols-2">
         {/* LEFT - form */}
-        <div className="bg-white rounded-3xl p-6 md:p-8">
+        <div className="p-6 bg-white rounded-3xl md:p-8">
           <AuthCard
             title="Welcome Back to Cerope"
             subtitle="Your personalized fashion journey awaits."
           >
-            <form className="space-y-3">
+            <form className="space-y-3" onSubmit={handleSubmit}>
+              {/* Error message */}
+              {error && (
+                <p className="px-3 py-2 text-xs text-red-500 border border-red-100 rounded-lg bg-red-50">
+                  {error}
+                </p>
+              )}
+
               {/* Email */}
               <div className="space-y-1">
                 <label className="text-sm font-medium">Email</label>
@@ -24,6 +121,9 @@ const SignIn = () => {
                   type="email"
                   placeholder="Enter your email"
                   className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
 
@@ -34,6 +134,9 @@ const SignIn = () => {
                   type="password"
                   placeholder="Enter password"
                   className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
               </div>
 
@@ -42,13 +145,18 @@ const SignIn = () => {
                 <label className="flex items-center gap-2 text-gray-600">
                   <input
                     type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300"
+                    className="w-4 h-4 border-gray-300 rounded"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
                   />
                   <span>Remember me</span>
                 </label>
                 <button
                   type="button"
                   className="text-gray-500 hover:text-gray-700"
+                  onClick={() => {
+                    // TODO: forgot password page
+                  }}
                 >
                   Forgot Password?
                 </button>
@@ -57,13 +165,14 @@ const SignIn = () => {
               {/* Sign in button */}
               <button
                 type="submit"
-                className="w-full rounded-full bg-black text-white text-sm py-2.5 mt-1"
+                disabled={loading}
+                className="w-full rounded-full bg-black text-white text-sm py-2.5 mt-1 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Sign In
+                {loading ? "Signing in..." : "Sign In"}
               </button>
 
               {/* OR separator */}
-              <div className="flex items-center gap-2 text-xs text-gray-400 my-2">
+              <div className="flex items-center gap-2 my-2 text-xs text-gray-400">
                 <span className="flex-1 h-px bg-gray-200" />
                 <span>or</span>
                 <span className="flex-1 h-px bg-gray-200" />
@@ -71,24 +180,29 @@ const SignIn = () => {
 
               {/* Social buttons */}
               <div className="flex gap-3">
+                {/* ✅ Google button yaha render hoga */}
+                <div className="flex-1">
+                  <div ref={googleButtonRef} className="w-full" />
+                  {googleLoading && (
+                    <p className="mt-1 text-[10px] text-gray-400">
+                      Signing in with Google...
+                    </p>
+                  )}
+                </div>
+
+                {/* Apple placeholder */}
                 <button
                   type="button"
-                  className="flex-1 rounded-full border border-gray-200 bg-white py-2 text-xs"
+                  className="flex-1 py-2 text-xs bg-white border border-gray-200 rounded-full"
                 >
-                  G Google
-                </button>
-                <button
-                  type="button"
-                  className="flex-1 rounded-full border border-gray-200 bg-white py-2 text-xs"
-                >
-                   Apple
+                   Continue with Apple
                 </button>
               </div>
 
               {/* Switch to sign up */}
-              <p className="text-xs text-center text-gray-600 mt-2">
+              <p className="mt-2 text-xs text-center text-gray-600">
                 Don&apos;t have an account?{" "}
-                <Link to="/signup" className="text-violet-500 font-medium">
+                <Link to="/signup" className="font-medium text-violet-500">
                   Sign up
                 </Link>
               </p>
@@ -97,11 +211,8 @@ const SignIn = () => {
         </div>
 
         {/* RIGHT image */}
-        <div className="bg-white rounded-3xl p-4 hidden md:block">
-          <AuthSideImage
-            src={signinImage}
-            alt="Sign in illustration"
-          />
+        <div className="hidden p-4 bg-white rounded-3xl md:block">
+          <AuthSideImage src={signinImage} alt="Sign in illustration" />
         </div>
       </section>
     </PageContainer>

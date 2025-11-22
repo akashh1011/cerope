@@ -4,11 +4,25 @@ import cookieParser from 'cookie-parser'
 import userRouter from "./routes/user.route.js"
 const app = express()
 
-app.use(cors({
-  origin:process.env.CORS_ORIGIN,
-  credentials:true
-}))
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://your-frontend.onrender.com",
+];
+
+
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true); // mobile apps / curl etc.
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
+
+app.use(express.json());
 
 app.use(express.json())
 app.use(express.urlencoded())

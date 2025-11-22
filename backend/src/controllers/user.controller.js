@@ -100,17 +100,20 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// ========================
-// Google Login / Signup
-// ========================
-// POST /api/auth/google
-// body: { idToken: "..." }
 export const googleLogin = async (req, res) => {
   try {
     const { idToken } = req.body;
 
     if (!idToken) {
       return res.status(400).json({ message: "ID token is required" });
+    }
+
+    const decoded = jwt.decode(idToken);
+
+    if (decoded?.aud !== process.env.GOOGLE_CLIENT_ID) {
+      return res.status(400).json({
+        message: "Google client ID mismatch (audience invalid)",
+      });
     }
 
     // 1. Verify token
@@ -140,7 +143,6 @@ export const googleLogin = async (req, res) => {
         avatar: picture,
       });
     } else {
-      // agar pehle local tha, ab google se aa raha hai, to provider update kar sakte ho
       if (!user.googleId) user.googleId = sub;
       if (!user.avatar && picture) user.avatar = picture;
       if (!user.provider) user.provider = "google";
@@ -149,14 +151,13 @@ export const googleLogin = async (req, res) => {
 
     return sendTokensResponse(user, res, "Logged in with Google successfully");
   } catch (error) {
-    console.error("Google login error:", error);
-    return res.status(500).json({ message: "Google login failed" });
+    console.error("Google login error:", error?.message || error);
+    return res
+      .status(500)
+      .json({ message: error?.message || "Google login failed" });
   }
 };
 
-// ========================
-// Refresh Access Token (optional)
-// ========================
 import jwt from "jsonwebtoken";
 
 export const refreshAccessToken = async (req, res) => {
@@ -189,9 +190,6 @@ export const refreshAccessToken = async (req, res) => {
   }
 };
 
-// ========================
-// Get current user (requires auth middleware)
-// ========================
 export const getCurrentUser = async (req, res) => {
   try {
     // auth middleware me req.user me _id set kiya hoga

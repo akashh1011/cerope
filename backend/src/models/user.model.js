@@ -7,43 +7,61 @@ const userSchema = new Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
 
     email: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
-
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return this.provider === "local";
+      },
+      minlength: 6,
+    },
+
+    provider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+
+    googleId: {
+      type: String,
+    },
+
+    avatar: {
+      type: String,
     },
   },
   { timestamps: true }
 );
-
-// ✅ Async hook WITHOUT next
 userSchema.pre("save", async function () {
   // agar password change hi nahi hua, to kuch mat karo
   if (!this.isModified("password")) return;
 
-  // hash the password
+  if (!this.password) return; // safety check for google users
+
   this.password = await bcrypt.hash(this.password, 10);
 });
 
-// ✔ password verify method
 userSchema.methods.isPasswordCorrect = async function (password) {
+  if (!this.password) return false; // google only user ke case me
   return await bcrypt.compare(password, this.password);
 };
 
-// ✔ access token
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
       name: this.name,
       email: this.email,
+      provider: this.provider,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
@@ -52,7 +70,6 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 
-// ✔ refresh token (chhota sa improvement: this._id)
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {

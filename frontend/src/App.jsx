@@ -6,6 +6,7 @@ import SignIn from "./pages/SignIn.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import UserCreateAccount from "./pages/UserCreateAccount.jsx";
 import Profile from "./pages/Profile.jsx";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 
 const App = () => {
   return (
@@ -18,7 +19,14 @@ const App = () => {
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/user-setup" element={<UserCreateAccount />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
 
       {/* koi bhi random URL ho to signin pe redirect */}
       <Route path="*" element={<Navigate to="/signin" replace />} />

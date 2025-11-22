@@ -3,55 +3,68 @@ import PageContainer from "../components/Layout/PageContainer.jsx";
 import AvatarSelector from "../components/profile/AvatarSelector.jsx";
 
 const Profile = () => {
-  // avatar state – default ek emoji
   const [avatar, setAvatar] = useState("🧑‍💻");
+  const [user] = useState(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      console.error("Invalid user in storage");
+      return null;
+    }
+  });
+
+  const firstName = user?.name?.split(" ")[0] || "User";
+  const lastName = user?.name?.split(" ").slice(1).join(" ") || "";
 
   return (
     <PageContainer>
       <section className="max-w-5xl mx-auto mt-6">
-        <h1 className="text-2xl md:text-3xl font-semibold">My Profile</h1>
+        <h1 className="text-2xl font-semibold md:text-3xl">My Profile</h1>
 
-        <div className="mt-4 bg-white rounded-3xl p-5 md:p-7">
+        <div className="p-5 mt-4 bg-white rounded-3xl md:p-7">
           {/* Header row */}
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Personal Details</h2>
-            <button className="rounded-full border border-gray-300 text-xs px-4 py-1">
+            <button
+            
+             className="px-4 py-1 text-xs border border-gray-300 rounded-full">
               Edit
             </button>
           </div>
 
           {/* Content grid: form + avatar section */}
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-[1.6fr_1fr] gap-6">
+          <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-[1.6fr_1fr]">
             {/* LEFT: form fields */}
             <div className="space-y-3">
               {/* First + last name */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
                   <label className="text-sm font-medium">First Name</label>
                   <input
                     type="text"
-                    defaultValue="Roshani"
-                    className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
+                    defaultValue={firstName}
+                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-300"
                   />
                 </div>
                 <div className="space-y-1">
                   <label className="text-sm font-medium">Last Name</label>
                   <input
                     type="text"
-                    defaultValue="Shah"
-                    className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
+                    defaultValue={lastName}
+                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-300"
                   />
                 </div>
               </div>
 
               {/* Email + number */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
                   <label className="text-sm font-medium">Email ID</label>
                   <input
                     type="email"
-                    defaultValue="roshani123@gmail.com"
-                    className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
+                    defaultValue={user?.email || ""}
+                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-300"
                   />
                 </div>
                 <div className="space-y-1">
@@ -59,58 +72,20 @@ const Profile = () => {
                   <input
                     type="tel"
                     defaultValue="+91 9920587654"
-                    className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
+                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-300"
                   />
                 </div>
               </div>
 
-              {/* Gender + DOB */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-sm font-medium">Gender</label>
-                  <div className="flex gap-4 text-xs text-gray-700">
-                    <label className="flex items-center gap-1">
-                      <input type="radio" name="gender" defaultChecked />
-                      <span>Male</span>
-                    </label>
-                    <label className="flex items-center gap-1">
-                      <input type="radio" name="gender" />
-                      <span>Female</span>
-                    </label>
-                    <label className="flex items-center gap-1">
-                      <input type="radio" name="gender" />
-                      <span>Other</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-sm font-medium">DOB</label>
-                  {/* day / month / year inputs */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <input
-                      defaultValue="01"
-                      className="rounded-full border border-gray-200 px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-violet-300"
-                    />
-                    <input
-                      defaultValue="10"
-                      className="rounded-full border border-gray-200 px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-violet-300"
-                    />
-                    <input
-                      defaultValue="2000"
-                      className="rounded-full border border-gray-200 px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-violet-300"
-                    />
-                  </div>
-                </div>
-              </div>
+              {/* Gender + DOB etc. yaha pe baaki jo bhi tha tu same rakh sakta hai */}
             </div>
 
             {/* RIGHT: avatar */}
             <div className="flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full bg-pink-50 flex items-center justify-center text-4xl">
+              <div className="flex items-center justify-center w-20 h-20 text-4xl rounded-full bg-pink-50">
                 {avatar}
               </div>
-              <button className="mt-2 rounded-full border border-gray-300 text-xs px-4 py-1">
+              <button className="px-4 py-1 mt-2 text-xs border border-gray-300 rounded-full">
                 Change Profile Picture
               </button>
 
