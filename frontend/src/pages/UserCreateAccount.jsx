@@ -2,19 +2,20 @@ import React from "react";
 import PageContainer from "../components/Layout/PageContainer.jsx";
 import AuthSideImage from "../components/auth/AuthSideImage.jsx";
 
+
 const UserCreateAccount = () => {
   return (
     <PageContainer>
       <section className="max-w-5xl mx-auto mt-6 grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-6">
         {/* LEFT form */}
-        <div className="bg-white rounded-3xl p-6 md:p-8">
-          <h1 className="text-2xl md:text-3xl font-semibold mb-4">
+        <div className="p-6 bg-white rounded-3xl md:p-8">
+          <h1 className="mb-4 text-2xl font-semibold md:text-3xl">
             Set up your User account
           </h1>
 
           <form className="space-y-3">
             {/* First + Last name */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div className="space-y-1">
                 <label className="text-sm font-medium">First Name *</label>
                 <input
@@ -45,7 +46,7 @@ const UserCreateAccount = () => {
             </div>
 
             {/* DOB + Style preference */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div className="space-y-1">
                 <label className="text-sm font-medium">Date of Birth *</label>
                 <input
@@ -76,7 +77,7 @@ const UserCreateAccount = () => {
             </div>
 
             {/* Phone + Country */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div className="space-y-1">
                 <label className="text-sm font-medium">Phone Number</label>
                 <input
@@ -116,9 +117,9 @@ const UserCreateAccount = () => {
         </div>
 
         {/* RIGHT image (desktop only) */}
-        <div className="bg-white rounded-3xl p-4 hidden md:block">
+        <div className="hidden p-4 bg-white rounded-3xl md:block">
           <AuthSideImage
-            src="https://via.placeholder.com/450x550.png?text=User+Setup+Art"
+            src=""
             alt="User setup illustration"
           />
         </div>

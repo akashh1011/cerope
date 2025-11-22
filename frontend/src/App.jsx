@@ -27,9 +27,10 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+      <Route path="/user-setup" element={<UserCreateAccount />} />
 
       {/* koi bhi random URL ho to signin pe redirect */}
-      <Route path="*" element={<Navigate to="/signin" replace />} />
+
     </Routes>
   );
 };

@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import PageContainer from "../components/Layout/PageContainer.jsx";
 import AvatarSelector from "../components/profile/AvatarSelector.jsx";
+import { useNavigate } from "react-router-dom";
+
 
 const Profile = () => {
+  const navigate = useNavigate();   
   const [avatar, setAvatar] = useState("🧑‍💻");
   const [user] = useState(() => {
     try {
@@ -27,7 +30,7 @@ const Profile = () => {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Personal Details</h2>
             <button
-            
+            onClick={() => navigate("/user-setup")}  
              className="px-4 py-1 text-xs border border-gray-300 rounded-full">
               Edit
             </button>
